@@ -1,103 +1,170 @@
-import Image from "next/image";
 
-export default function Home() {
+'use client';
+
+import { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const mockHabitData = [
+  { day: 'Mon', sleep: 7, water: 2, screen: 5 },
+  { day: 'Tue', sleep: 6, water: 1.5, screen: 6 },
+  { day: 'Wed', sleep: 8, water: 2, screen: 4 },
+  { day: 'Thu', sleep: 5, water: 1, screen: 7 },
+  { day: 'Fri', sleep: 7, water: 2.5, screen: 3 },
+  { day: 'Sat', sleep: 9, water: 3, screen: 2 },
+  { day: 'Sun', sleep: 8, water: 2.8, screen: 4 },
+];
+
+type HabitType = 'sleep' | 'water' | 'screen';
+
+const habits: HabitType[] = ['sleep', 'water', 'screen'];
+
+const screenLimit = 6;
+const waterGoal = 3;
+const sleepGoal = 8;
+
+const today = new Date().toISOString().slice(0, 10);
+
+export default function HabitTrackerApp() {
+  const [sleepGoal, setSleepGoal] = useState(8);
+  const [waterGoal, setWaterGoal] = useState(2);
+  const [screenLimit, setScreenLimit] = useState(4);
+  const [checkIn, setCheckIn] = useState<Record<HabitType, number>>({
+    sleep: 0,
+    water: 0,
+    screen: 0,
+  });
+  const [showSettings, setShowSettings] = useState(false);
+  const [streak, setStreak] = useState(3);
+  const [rsvpCount, setRsvpCount] = useState(5);
+
+  useEffect(() => {
+    // Mock: Update streak if goals are met
+    const metAllGoals = checkIn.sleep >= sleepGoal && checkIn.water >= waterGoal && checkIn.screen <= screenLimit;
+    if (metAllGoals) setStreak(prev => prev + 1);
+  }, [checkIn]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="font-sans text-gray-800 bg-gray-50 min-h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">🌱 HabitFlow</h1>
+        <button onClick={() => setShowSettings(true)} className="hover:text-blue-500 transition">Settings</button>
+      </nav>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Landing + Analytics */}
+      <main className="flex-1 p-4 md:p-8">
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Today’s Check-In</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+
+          {habits.map((habit) => (
+        <div key={habit} className="bg-white rounded-xl shadow p-4">
+          <label className="block font-medium capitalize mb-2">
+            {habit}{' '}
+            {habit === 'screen' ? 'time (hrs)' : habit === 'water' ? '(L)' : '(hrs)'}
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="10"
+            value={checkIn[habit]}
+            onChange={(e) =>
+              setCheckIn((prev) => ({
+                ...prev,
+                [habit]: parseFloat(e.target.value),
+              }))
+            }
+            className="w-full"
+          />
+          <div className="mt-2 text-sm text-right">
+            {checkIn[habit]} /{' '}
+            {habit === 'screen'
+              ? screenLimit
+              : habit === 'water'
+              ? waterGoal
+              : sleepGoal}
+          </div>
         </div>
+      ))}
+
+
+
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Weekly Progress</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={mockHabitData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="sleep" stroke="#8884d8" name="Sleep (hrs)" />
+              <Line type="monotone" dataKey="water" stroke="#82ca9d" name="Water (L)" />
+              <Line type="monotone" dataKey="screen" stroke="#ffc658" name="Screen (hrs)" />
+            </LineChart>
+          </ResponsiveContainer>
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white shadow rounded-xl p-4">
+            <h3 className="font-semibold mb-2">Your Streak 🔥</h3>
+            <p className="text-3xl font-bold text-green-600">{streak} Days</p>
+          </div>
+          <div className="bg-white shadow rounded-xl p-4">
+            <h3 className="font-semibold mb-2">Upcoming Event</h3>
+            <p className="mb-2">"Mindful Morning" Meetup - Tomorrow @ 7 AM</p>
+            <button onClick={() => setRsvpCount(c => c + 1)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">RSVP</button>
+            <p className="text-sm mt-2">{rsvpCount} going</p>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="bg-white text-center p-4 text-sm shadow-inner">
+        © 2025 HabitFlow — Build Better Habits, One Day at a Time.
       </footer>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md"
+            >
+              <h3 className="text-lg font-semibold mb-4">Set Daily Goals</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block">Sleep Goal (hrs)</label>
+                  <input type="number" value={sleepGoal} onChange={(e) => setSleepGoal(parseFloat(e.target.value))} className="border w-full px-2 py-1 rounded" />
+                </div>
+                <div>
+                  <label className="block">Water Goal (L)</label>
+                  <input type="number" value={waterGoal} onChange={(e) => setWaterGoal(parseFloat(e.target.value))} className="border w-full px-2 py-1 rounded" />
+                </div>
+                <div>
+                  <label className="block">Max Screen Time (hrs)</label>
+                  <input type="number" value={screenLimit} onChange={(e) => setScreenLimit(parseFloat(e.target.value))} className="border w-full px-2 py-1 rounded" />
+                </div>
+              </div>
+              <button onClick={() => setShowSettings(false)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Save</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
