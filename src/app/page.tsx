@@ -19,11 +19,10 @@ type HabitType = 'sleep' | 'water' | 'screen';
 
 const habits: HabitType[] = ['sleep', 'water', 'screen'];
 
-const screenLimit = 6;
-const waterGoal = 3;
-const sleepGoal = 8;
-
-const today = new Date().toISOString().slice(0, 10);
+// const screenLimit = 6;
+// const waterGoal = 3;
+// const sleepGoal = 8;
+// const today = new Date().toISOString().slice(0, 10);
 
 export default function HabitTrackerApp() {
   const [sleepGoal, setSleepGoal] = useState(8);
@@ -42,7 +41,7 @@ export default function HabitTrackerApp() {
     // Mock: Update streak if goals are met
     const metAllGoals = checkIn.sleep >= sleepGoal && checkIn.water >= waterGoal && checkIn.screen <= screenLimit;
     if (metAllGoals) setStreak(prev => prev + 1);
-  }, [checkIn]);
+  }, [checkIn,screenLimit, waterGoal, sleepGoal]);
 
   return (
     <div className="font-sans text-gray-800 bg-gray-50 min-h-screen flex flex-col">
@@ -55,7 +54,7 @@ export default function HabitTrackerApp() {
       {/* Landing + Analytics */}
       <main className="flex-1 p-4 md:p-8">
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Today’s Check-In</h2>
+          <h2 className="text-2xl font-semibold mb-4">Today Check-In</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
 
@@ -116,7 +115,7 @@ export default function HabitTrackerApp() {
           </div>
           <div className="bg-white shadow rounded-xl p-4">
             <h3 className="font-semibold mb-2">Upcoming Event</h3>
-            <p className="mb-2">"Mindful Morning" Meetup - Tomorrow @ 7 AM</p>
+            <p className="mb-2">{'"Mindful Morning" Meetup - Tomorrow @ 7 AM'}</p>
             <button onClick={() => setRsvpCount(c => c + 1)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">RSVP</button>
             <p className="text-sm mt-2">{rsvpCount} going</p>
           </div>
